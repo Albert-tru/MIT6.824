@@ -24,7 +24,31 @@ type ExampleReply struct {
 
 // Add your RPC definitions here.
 
+//Worker向Coordinator请求任务
+type GetTaskArgs struct {
+	WorkerID int;
+}
 
+//Worker向Coordinator请求任务的回复
+type GetTaskReply struct {
+    TaskType  string    // 任务类型（"map" 或 "reduce"）
+    InputFile string    // 输入文件
+    TaskId    int       // 任务 ID
+    NReduce   int       // Reduce 任务的数量
+    AllDone   bool      // 是否所有任务都已完成
+}
+
+// Worker向Coordinator报告任务完成
+type ReportTaskArgs struct {
+	WorkerID int       // Worker ID
+	TaskId    int       // 任务 ID
+	TaskType  string    // 任务类型（"map" 或 "reduce"）
+}	
+
+// Worker向Coordinator报告任务完成的回复
+type ReportTaskReply struct {
+	Success bool      // 是否成功报告任务完成	
+}		
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the coordinator.
 // Can't use the current directory since
