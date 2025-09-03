@@ -70,6 +70,7 @@ func (ck *Clerk) Put(key, value string, version rpc.Tversion) rpc.Err {
 		if !ok {
 			//调用失败的话，重试
 			firstAttempt = false
+			continue
 		}
 		//rpc调用成功
 		switch reply.Err {

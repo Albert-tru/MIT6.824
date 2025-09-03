@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"6.5840/kvsrv1"
+	kvsrv "6.5840/kvsrv1"
 	"6.5840/kvsrv1/rpc"
-	"6.5840/kvtest1"
+	kvtest "6.5840/kvtest1"
 )
 
 const (
@@ -18,6 +18,7 @@ const (
 	NSEC     = 2
 )
 
+// 测试一个客户端，done通道关闭时返回，done通道什么时候关闭？
 func oneClient(t *testing.T, me int, ck kvtest.IKVClerk, done chan struct{}) kvtest.ClntRes {
 	lk := MakeLock(ck, "l")
 	ck.Put("l0", "", 0)
@@ -31,6 +32,7 @@ func oneClient(t *testing.T, me int, ck kvtest.IKVClerk, done chan struct{}) kvt
 			// log.Printf("%d: acquired lock", me)
 
 			b := strconv.Itoa(me)
+			// 获取锁的值和版本号
 			val, ver, err := ck.Get("l0")
 			if err == rpc.OK {
 				if val != "" {
@@ -62,16 +64,20 @@ func oneClient(t *testing.T, me int, ck kvtest.IKVClerk, done chan struct{}) kvt
 
 // Run test clients
 func runClients(t *testing.T, nclnt int, reliable bool) {
+	// 创建测试环境
 	ts := kvsrv.MakeTestKV(t, reliable)
 	defer ts.Cleanup()
 
+	// 开始测试
 	ts.Begin(fmt.Sprintf("Test: %d lock clients", nclnt))
 
+	// 启动多个客户端，每个客户端在done通道关闭时返回
 	ts.SpawnClientsAndWait(nclnt, NSEC*time.Second, func(me int, myck kvtest.IKVClerk, done chan struct{}) kvtest.ClntRes {
 		return oneClient(t, me, myck, done)
 	})
 }
 
+// 测试入口点
 func TestOneClientReliable(t *testing.T) {
 	runClients(t, 1, true)
 }

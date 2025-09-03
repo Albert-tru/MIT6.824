@@ -96,7 +96,7 @@ func (kv *KVServer) Put(args *rpc.PutArgs, reply *rpc.PutReply) {
 		kv.data[args.Key] = entry
 		reply.Err = rpc.OK
 	} else {
-		//key不存在，传入的version为0时，创建映射
+		//值不存在，传入的version为0时，创建映射
 		if args.Version == 0 {
 			entry.value = args.Value
 			entry.version = 1
